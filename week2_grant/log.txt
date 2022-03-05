@@ -1,0 +1,198 @@
+./ltr-end-to-end.sh -s ../python/search_ml -w week2_finished  -o /Users/grantingersoll/projects/corise/datasets/ltr/500 -a /Users/grantingersoll/projects/corise/datasets/bbuy/train.csv -y -c heuristic -e 500
++ python week2_finished/utilities/build_ltr.py --create_ltr_store
+Deleted old store response status: 200
+Create the new store at https://localhost:9200/_ltr/week2 response status: 200
++ '[' 0 -ne 0 ']'
++ python week2_finished/utilities/build_ltr.py -f week2_finished/conf/ltr_featureset.json --upload_featureset
+Installing week2_finished/conf/ltr_featureset.json featureset at https://localhost:9200/_ltr/week2/_featureset/bbuy_main_featureset
+POSTing the featureset to https://localhost:9200/_ltr/week2/_featureset/bbuy_main_featureset
+Featureset Creation: <Response [201]>
++ '[' 0 -ne 0 ']'
++ echo 'Creating training and test data sets from impressions by splitting on dates'
+Creating training and test data sets from impressions by splitting on dates
++ python week2_finished/utilities/build_ltr.py --output_dir /Users/grantingersoll/projects/corise/datasets/ltr/500 --split_input /Users/grantingersoll/projects/corise/datasets/bbuy/train.csv --split_train_rows 1000000 --split_test_rows 1000000
+Splitting: /Users/grantingersoll/projects/corise/datasets/bbuy/train.csv and writing train to: train.csv and test to: test.csv in /Users/grantingersoll/projects/corise/datasets/ltr/500
+Clicks pre filtering: 1865269
+Verify info: flag: validity.csv, path: /Users/grantingersoll/projects/corise/datasets/ltr/500/validity.csv, exists: True
+Clicks post filtering: 1703297
++ '[' 0 -ne 0 ']'
++ echo 'Creating impressions data set'
+Creating impressions data set
++ python week2_finished/utilities/build_ltr.py --generate_impressions --output_dir /Users/grantingersoll/projects/corise/datasets/ltr/500 --train_file /Users/grantingersoll/projects/corise/datasets/ltr/500/train.csv --synthesize
+Writing impressions to file: /Users/grantingersoll/projects/corise/datasets/ltr/500/impressions.csv
++ '[' 0 -ne 0 ']'
++ python week2_finished/utilities/build_ltr.py --ltr_terms_field sku --output_dir /Users/grantingersoll/projects/corise/datasets/ltr/500 --create_xgb_training -f week2_finished/conf/ltr_featureset.json --click_model heuristic
+Loading impressions from /Users/grantingersoll/projects/corise/datasets/ltr/500/impressions.csv
+Logging features
+Progress[0]: 1080p
+Progress[500]: First class
+Progress[1000]: Nikita
+Progress[1500]: Transformers: dark of the moon
+Progress[2000]: droid x
+Progress[2500]: marilyn manson
+Progress[3000]: the shield
+The following queries produced no results: {}
+Heuristic click model
+NAN counts: 29
+Writing XGB Training file with query                     8761
+sku                       8761
+clicks                    8761
+rank                      8761
+num_impressions           8761
+doc_id                    8761
+product_name              8761
+query_id                  8761
+multi_match               8761
+name_match                8761
+manufacturer_match        8761
+features_match            8761
+fuzzy_name_match          8761
+name_hyphens_match        8761
+name_hyphens_and_match    8761
+name_phrase_match         8761
+name_slop_phrase_match    8761
+shortDescription_match    8761
+longDescription_match     8761
+categoryPath_match        8761
+onSale                    8761
+salesRankShortTerm        8761
+salesRankMediumTerm       8761
+salesRankLongTerm         8761
+salePrice                 8761
+regularPrice              8761
+isNotMusic                8761
+click_prior               8761
+grade                     8761
+dtype: int64 rows to /Users/grantingersoll/projects/corise/datasets/ltr/500/training.xgb
+Writing feature map to /Users/grantingersoll/projects/corise/datasets/ltr/500/xgb-feat-map.txt
++ '[' 0 -ne 0 ']'
++ python week2_finished/utilities/build_ltr.py --output_dir /Users/grantingersoll/projects/corise/datasets/ltr/500 -x /Users/grantingersoll/projects/corise/datasets/ltr/500/training.xgb --xgb_conf week2_finished/conf/xgb-conf.json
+Training XG Boost on /Users/grantingersoll/projects/corise/datasets/ltr/500/training.xgb for 5 rounds with params: {'objective': 'reg:logistic'}
+Dumping out model using feature map: xgb-feat-map.txt
+Saving XGB LTR-ready model to /Users/grantingersoll/projects/corise/datasets/ltr/500/xgb_model.model.ltr
+Saving XGB Binary model to /Users/grantingersoll/projects/corise/datasets/ltr/500/xgb_model.model
++ '[' 0 -ne 0 ']'
++ python week2_finished/utilities/build_ltr.py --upload_ltr_model --xgb_model /Users/grantingersoll/projects/corise/datasets/ltr/500/xgb_model.model
+Deleting model from https://localhost:9200/_ltr/week2/_model/ltr_model
+	Delete Model Response: 404: {"_index":".ltrstore_week2","_type":"store","_id":"model-ltr_model","_version":1,"result":"not_found","_shards":{"total":1,"successful":1,"failed":0},"_seq_no":1,"_primary_term":1}
+Uploading model to https://localhost:9200/_ltr/week2/_featureset/bbuy_main_featureset/_createmodel
+	Upload Model Response: 201: {"_index":".ltrstore_week2","_type":"store","_id":"model-ltr_model","_version":2,"result":"created","forced_refresh":true,"_shards":{"total":1,"successful":1,"failed":0},"_seq_no":2,"_primary_term":1}
++ '[' 0 -ne 0 ']'
++ python week2_finished/utilities/build_ltr.py --xgb_plot --output_dir /Users/grantingersoll/projects/corise/datasets/ltr/500
+Plotting model quality data
+Plotting trees: 4
+Plotting feature importance
++ '[' 0 -ne 0 ']'
++ python week2_finished/utilities/build_ltr.py --xgb_test /Users/grantingersoll/projects/corise/datasets/ltr/500/test.csv --train_file /Users/grantingersoll/projects/corise/datasets/ltr/500/train.csv --output_dir /Users/grantingersoll/projects/corise/datasets/ltr/500 --xgb_test_num_queries 500
+Running 500 test queries.
+Progress[0]: amy winehouse
+Progress[50]: disney
+Progress[100]: Skullcandy headphones
+Progress[150]: video ipod
+Progress[200]: dvd player for car
+Progress[250]: captain america blu ray
+Progress[300]: power pad
+Progress[350]: shure
+Progress[400]: antanae
+Progress[450]: pirates of caribeans
+We've executed 500 queries. Finishing.
+Writing results of test to /Users/grantingersoll/projects/corise/datasets/ltr/500/xgb_test_output.csv
+Meta:
+Model name: ltr_model, Store Name: week2, Index: bbuy_products, Precision: 10 
+
+Zero results queries: {'simple': ['Lg47lv5500'], 'ltr_simple': ['Lg47lv5500'], 'hand_tuned': ['Lg47lv5500'], 'ltr_hand_tuned': ['Lg47lv5500']}
+
+
++ '[' 0 -ne 0 ']'
++ python week2_finished/utilities/build_ltr.py --analyze --output_dir /Users/grantingersoll/projects/corise/datasets/ltr/500
+Analyzing results from /Users/grantingersoll/projects/corise/datasets/ltr/500/xgb_test_output.csv
+Queries not seen during training: [424]
+                                    query
+0                           amy winehouse
+1                                     mp3
+2                          marilyn manson
+3                                 macbook
+4                             blank media
+..                                    ...
+419                     laptop power cord
+420                             ipod dock
+421                             sony vaio
+422                                   pda
+423  transformers dark of the moon bluray
+
+[424 rows x 1 columns]
+
+
+Simple MRR is 0.312
+LTR Simple MRR is 0.313
+Hand tuned MRR is 0.413
+LTR Hand Tuned MRR is 0.517
+
+Simple p@10 is 0.113
+LTR simple p@10 is 0.114
+Hand tuned p@10 is 0.168
+LTR hand tuned p@10 is 0.240
+Simple better: 109	LTR_Simple Better: 263	Equal: 5054
+HT better: 1764	LTR_HT Better: 987	Equal: 3239
+Saving Better/Equal analysis to /Users/grantingersoll/projects/corise/datasets/ltr/500/analysis
+--------------------------------
+###########
+# Rerun test with LTR weight only
+###########
+ python week2_finished/utilities/build_ltr.py --xgb_test /Users/grantingersoll/projects/corise/datasets/ltr/500/test.csv --train_file /Users/grantingersoll/projects/corise/datasets/ltr/500/train.csv --output_dir /Users/grantingersoll/projects/corise/datasets/ltr/500 --xgb_test_num_queries 500  --xgb_main_query_weight 0
+Running 500 test queries.
+Progress[0]: iPhone cases
+Progress[50]: modem
+Progress[100]: pioneer in dash
+Progress[150]: lens
+Progress[200]: chromebook
+Progress[250]: pc games
+Progress[300]: Hdmi cable
+Progress[350]: wireless
+Progress[400]: belkin n750
+Progress[450]: Rocksmith
+We've executed 500 queries. Finishing.
+Writing results of test to /Users/grantingersoll/projects/corise/datasets/ltr/500/xgb_test_output.csv
+Meta:
+Model name: ltr_model, Store Name: week2, Index: bbuy_products, Precision: 10 
+
+Zero results queries: {'simple': ['ffgf3049ls'], 'ltr_simple': ['ffgf3049ls'], 'hand_tuned': ['ffgf3049ls'], 'ltr_hand_tuned': ['ffgf3049ls']}
+
+
+❯ python week2_finished/utilities/build_ltr.py --analyze --output_dir /Users/grantingersoll/projects/corise/datasets/ltr/500
+Analyzing results from /Users/grantingersoll/projects/corise/datasets/ltr/500/xgb_test_output.csv
+Queries not seen during training: [442]
+                  query
+0          iPhone cases
+1               linksys
+2           memory card
+3                lcd tv
+4                Whalen
+..                  ...
+437                 fax
+438  external harddrive
+439               dvi-d
+440               onkyo
+441           Gps units
+
+[442 rows x 1 columns]
+
+
+Simple MRR is 0.303
+LTR Simple MRR is 0.678
+Hand tuned MRR is 0.400
+LTR Hand Tuned MRR is 0.714
+
+Simple p@10 is 0.106
+LTR simple p@10 is 0.235
+Hand tuned p@10 is 0.168
+LTR hand tuned p@10 is 0.241
+Simple better: 2344	LTR_Simple Better: 3286	Equal: 47
+HT better: 2792	LTR_HT Better: 3238	Equal: 85
+Saving Better/Equal analysis to /Users/grantingersoll/projects/corise/datasets/ltr/500/analysis
+
+
+
+
+
+
