@@ -3,12 +3,14 @@ import random
 import xml.etree.ElementTree as ET
 import argparse
 from pathlib import Path
+import string
+from nltk.stem.snowball import EnglishStemmer
 
-directory = r'/workspace/search_with_machine_learning_course/data/pruned_products'
+directory = r'./data/pruned_products'
 parser = argparse.ArgumentParser(description='Process some integers.')
 general = parser.add_argument_group("general")
 general.add_argument("--input", default=directory,  help="The directory containing the products")
-general.add_argument("--output", default="/workspace/datasets/fasttext/titles.txt", help="the file to output to")
+general.add_argument("--output", default="fasttext/titles.txt", help="the file to output to")
 
 # Consuming all of the product data takes a while. But we still want to be able to obtain a representative sample.
 general.add_argument("--sample_rate", default=0.1, type=float, help="The rate at which to sample input (default is 0.1)")
@@ -25,9 +27,21 @@ if args.input:
 
 sample_rate = args.sample_rate
 
+def remove_special_characters(value):
+    deletechars = '®™'
+    for c in deletechars:
+        value = value.replace(c,'')
+    return value
+
 def transform_training_data(name):
-    # IMPLEMENT
-    return name.replace('\n', ' ')
+    translation_table = str.maketrans("", "", string.punctuation)
+    punctuation_removed_name = name.translate(translation_table)
+    special_characters_removed_name = remove_special_characters(punctuation_removed_name)
+    tokens = special_characters_removed_name.split()
+    english_stemmer = EnglishStemmer()
+    stemmed_tokens = [english_stemmer.stem(token) for token in tokens]
+    name = " ".join(stemmed_tokens)
+    return name
 
 # Directory for product data
 
